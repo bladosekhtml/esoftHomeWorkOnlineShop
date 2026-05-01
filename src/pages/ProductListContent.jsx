@@ -14,26 +14,19 @@ const ProductListContent = () => {
 
     const [sort, setSort] = useState('default');
     const [filter, setFilter] = useState({});
-    
-    const handleChangeFilter = (key, value) => {
-        setFilter(prevFilterValue => {
-            const newFilter = {...prevFilterValue};
-            newFilter[key] = value;
-            return newFilter;
-        });
-    };
 
     const filteredProducts = useMemo(() => {
         let items = products;
-        if (filter?.minCost !== '' && parseFloat(filter['minCost']) > -1) items = items.filter(i => i.price >= parseFloat(filter['minCost'])); 
-        if (filter?.maxCost !== '' && parseFloat(filter['maxCost']) > -1) items = items.filter(i => i.price <= parseFloat(filter['maxCost'])); 
+        
+        if (filter?.minCost && parseFloat(filter?.minCost) >= 0) items = items.filter(i => i.price >= parseFloat(filter['minCost'])); 
+        if (filter?.minCost && parseFloat(filter?.maxCost) >= 0) items = items.filter(i => i.price <= parseFloat(filter['maxCost'])); 
         if (filter?.brand) items = items.filter(i => i.brand == filter.brand);
 
         return items;
     }, [filter, products]);
 
     return (
-        <FilterContext.Provider value={{filter, handleChangeFilter}}>
+        <FilterContext.Provider value={{filter, setFilter}}>
             <Sidebar />
             <section style={{
                 display: 'flex',
@@ -44,7 +37,7 @@ const ProductListContent = () => {
                     display: 'flex',
                     justifyContent: 'space-between',
                 }}>
-                    {products.length || 0} products
+                    {filteredProducts.length || 0} products
                     <ProductSort onChange={setSort} />
                 </div>
                 <div className='productList'>
